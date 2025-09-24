@@ -89,10 +89,10 @@ app.use((req,res,next)=>{
     next();
 });
 
-//API request
-// app.get("/" , (req ,res)=>{
-//     res.send("Hi , i am root");
-// });
+// API request
+app.get("/" , (req ,res)=>{
+    res.redirect("/listings");
+});
 
 app.get("/demouser", async(req, res)=>{
     const fakeUser = new User({username: "demouser", 
