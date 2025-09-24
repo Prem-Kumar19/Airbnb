@@ -1,0 +1,47 @@
+<% layout("layouts/boilerplate") -%>
+
+    <div class="row mt-3">
+        <div class="col-8 offset-2">
+            <h1>Create a New Listing</h1>
+            <form method="POST" action="/listings" class="needs-validation" novalidate enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <input class="form-control" type="text" id="title" name="listing[title]"
+                        placeholder="e.g., Cozy Cottage" required>
+                    <div class="invalid-feedback">Please enter the title</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <textarea class="form-control" id="description" name="listing[description]"
+                        placeholder="e.g., A lovely cottage by the sea" required></textarea>
+                    <div class="invalid-feedback">Please enter the description</div>
+                </div>
+                <div class="row">
+                    <div class="mb-3 col-md-4">
+                        <label for="price" class="form-label">Price:</label>
+                        <input class="form-control" id="price" name="listing[price]" placeholder="e.g., 100" required>
+                        <div class="invalid-feedback">Please enter the price</div>
+                    </div>
+                    <div class="mb-3 col-md-8">
+                        <label for="country" class="form-label">Country:</label>
+                        <input class="form-control" type="text" id="country" name="listing[country]"
+                            placeholder="e.g., USA" required>
+                        <div class="invalid-feedback">Country name should be valid</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload Listing Image:</label>
+                    <input class="form-control" type="file" id="image" name="listing[image][url]" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location:</label>
+                    <input class="form-control" type="text" id="location" name="listing[location]"
+                        placeholder="e.g., Beachside" required>
+                    <div class="invalid-feedback">Location should be valid</div>
+                </div>
+                <button class="btn btn-dark mb-3 mt-3 add-btn" type="submit">Add</button>
+            </form>
+        </div>
+    </div>
