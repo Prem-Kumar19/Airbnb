@@ -1,7 +1,6 @@
 const User = require("../models/user.js");
 const Listing = require("../models/listing.js");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 const sendEmail = require("../utils/sendEmail");
 
 module.exports.renderSignupForm = (req, res) => {
