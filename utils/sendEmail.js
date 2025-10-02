@@ -1,20 +1,16 @@
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 async function sendEmail(to, subject, text) {
-  let transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: process.env.EMAIL_USER, // your Gmail
-      pass: process.env.EMAIL_PASS, // Gmail app password
-    },
-  });
-
-  await transporter.sendMail({
-    from: `"My App" <${process.env.EMAIL_USER}>`,
+  const msg = {
     to,
+    from: "myairbnbwanderlust@gmail.com", // your verified sender
     subject,
     text,
-  });
+  };
+
+  await sgMail.send(msg);
 }
 
 module.exports = sendEmail;
