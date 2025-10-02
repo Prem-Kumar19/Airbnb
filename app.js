@@ -2,6 +2,8 @@ if(process.env.NODE_ENV !== "production"){
     require("dotenv").config({override: true});
 }
 
+const sendEmail = require("./utils/sendEmail");
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -93,6 +95,17 @@ app.use((req,res,next)=>{
 app.get("/" , (req ,res)=>{
     res.redirect("/listings");
 });
+
+app.get("/test-email", async (req, res) => {
+  try {
+    await sendEmail("your_email@gmail.com", "Test Email", "This works!");
+    res.send("Email sent!");
+  } catch (err) {
+    console.error(err);
+    res.send("Error: " + err.message);
+  }
+});
+
 
 app.get("/demouser", async(req, res)=>{
     const fakeUser = new User({username: "demouser", 
