@@ -5,58 +5,78 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const sendEmail = require("../utils/sendEmail");
 
-// 1️⃣ Show forgot password page
+// Show forgot password page
 router.get("/forgot-password", (req, res) => {
   res.render("forgot-password");
 });
 
-// 2️⃣ Handle forgot password form submission
+// Handle forgot password submission
 router.post("/forgot-password", async (req, res) => {
-  const { email } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) return res.send("No account with that email found.");
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.send("No account with that email found.");
 
-  const token = crypto.randomBytes(32).toString("hex");
-  user.resetPasswordToken = token;
-  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-  await user.save();
+    // Generate token
+    const token = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
 
-  
-  const baseURL = process.env.BASE_URL
-  const resetUrl = `${process.env.BASE_URL}/reset-password/${token}`;
-  await sendEmail(user.email, "Password Reset", `Click here: ${resetUrl}`);
+    // Create reset URL using environment BASE_URL
+    const baseURL = process.env.BASE_URL;
+    const resetUrl = `${baseURL}/reset-password/${token}`;
 
-  res.send("Password reset link sent to your email.");
+    // Send email
+    await sendEmail(
+      user.email,
+      "Password Reset Request",
+      `Hello ${user.username || ""},\n\nClick this link to reset your password:\n${resetUrl}\n\nIf you did not request this, please ignore this email.`
+    );
+
+    res.send("Password reset link sent to your email.");
+  } catch (err) {
+    console.error("Forgot Password Error:", err);
+    res.send("Something went wrong. Please try again later.");
+  }
 });
 
-// 3️⃣ Show reset password page
+// Show reset password page
 router.get("/reset-password/:token", async (req, res) => {
-  const user = await User.findOne({
-    resetPasswordToken: req.params.token,
-    resetPasswordExpires: { $gt: Date.now() },
-  });
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    if (!user) return res.send("Token is invalid or expired.");
 
-  if (!user) return res.send("Token is invalid or expired.");
-
-  res.render("reset-password", { token: req.params.token });
+    res.render("reset-password", { token: req.params.token });
+  } catch (err) {
+    console.error("Reset Password GET Error:", err);
+    res.send("Something went wrong. Please try again later.");
+  }
 });
 
-// 4️⃣ Handle reset password submission
+// Handle reset password submission
 router.post("/reset-password/:token", async (req, res) => {
-  const user = await User.findOne({
-    resetPasswordToken: req.params.token,
-    resetPasswordExpires: { $gt: Date.now() },
-  });
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    if (!user) return res.send("Token is invalid or expired.");
 
-  if (!user) return res.send("Token is invalid or expired.");
+    const hashedPassword = await bcrypt.hash(req.body.password, 12);
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
 
-  const hashedPassword = await bcrypt.hash(req.body.password, 12);
-  user.password = hashedPassword;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-  await user.save();
-
-  res.send("Password has been reset successfully!");
+    res.send("Password has been reset successfully!");
+  } catch (err) {
+    console.error("Reset Password POST Error:", err);
+    res.send("Something went wrong. Please try again later.");
+  }
 });
 
 module.exports = router;
